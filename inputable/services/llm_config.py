@@ -55,6 +55,7 @@ class LLMGeneralConfig:
     max_retries: int = 2
     timeout: int = 60
     enable_logging: bool = True
+    verify_ssl: bool = True
     
     @classmethod
     def from_env(cls) -> LLMGeneralConfig:
@@ -62,6 +63,7 @@ class LLMGeneralConfig:
             max_retries=int(os.getenv("LLM_MAX_RETRIES", "2")),
             timeout=int(os.getenv("LLM_TIMEOUT", "60")),
             enable_logging=os.getenv("LLM_ENABLE_LOGGING", "true").lower() == "true",
+            verify_ssl=os.getenv("LLM_VERIFY_SSL", "true").lower() == "true",
         )
 
 
