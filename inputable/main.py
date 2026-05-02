@@ -83,7 +83,7 @@ os.makedirs(IMAGE_DIR, exist_ok=True)
 app.mount("/images", StaticFiles(directory=IMAGE_DIR), name="images")
 
 # ── Routers ───────────────────────────────────────────────────────────────────
-from routers import generate, render, evaluate, export_anki, users, placement
+from routers import generate, render, evaluate, export_anki, placement, auth
 
 app.include_router(generate.router)
 app.include_router(render.router)

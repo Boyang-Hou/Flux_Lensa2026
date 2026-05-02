@@ -1,6 +1,36 @@
 from __future__ import annotations
 from typing import Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    cefrLevel: str | None = None
+    hasCompletedTest: bool = False
+    createdAt: str
+
+
+class AuthResponse(BaseModel):
+    user: UserResponse
+    token: str
+
+
+class UpdateLevelRequest(BaseModel):
+    userId: str
+    cefrLevel: Literal["A1", "A2", "B1"]
 
 
 class VocabularyEntry(BaseModel):
@@ -58,17 +88,6 @@ class EvaluateResponse(BaseModel):
     feedback: str
     words_updated: list[str]
     cefr_upgraded: str | None = None
-
-
-class UserResponse(BaseModel):
-    user_id: str
-    estimated_cefr: str
-    learned_word_count: int
-
-
-class CreateUserRequest(BaseModel):
-    user_id: str | None = None
-    cefr: str = "A1"
 
 
 class PlacementTestRequest(BaseModel):

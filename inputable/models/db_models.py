@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, JSON, DateTime, Text
+from sqlalchemy import Column, String, Float, Integer, JSON, DateTime, Text, Boolean
 from sqlalchemy.orm import declarative_base
 from datetime import datetime
 import uuid
@@ -9,8 +9,12 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
     user_id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String, unique=True, nullable=True, index=True)
+    name = Column(String, nullable=True)
+    password_hash = Column(String, nullable=True)
     target_lang = Column(String, default="id")
     estimated_cefr = Column(String, default="A1")
+    has_completed_test = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
