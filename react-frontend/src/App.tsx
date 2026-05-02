@@ -13,9 +13,10 @@ import './styles/components.css';
 import Practice from './components/Practice';
 
 function AppContent() {
+  
   const { isAuthenticated, isLoading, user } = useAuth();
   const { t } = useSettings();
-  const { state, handleGenerate, handleSubmitAnswer } = useLensaApp();
+  const { state, dispatch, handleGenerate, handleSubmitAnswer } = useLensaApp();
 
   if (isLoading) {
     return (
@@ -68,11 +69,19 @@ function AppContent() {
         />
         {state.isGenerating && <p className="status-text">{state.status}</p>}
         <RecentLearning />
-        <QuickActions
+        <QuickActions 
           onActionClick={(actionId) => {
             console.log('Action clicked:', actionId);
-          }}
-        />
+            if (actionId === 'practice') {
+              // 触发一个空的练习状态，跳转到练习页
+              dispatch({ type: 'GENERATE_SUCCESS', payload: {
+                sessionId: 'practice-mode',
+                annotations: [],
+                caption: '',
+              task: { type: 'fill_blank', prompt: '请先上传图片生成练习题', answer: '' },}});
+    }
+  }}
+/>
       </div>
     </MainLayout>
   );

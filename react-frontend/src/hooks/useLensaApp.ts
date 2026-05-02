@@ -32,8 +32,11 @@ export function useLensaApp() {
       return;
     }
     try {
-      const feedback = await evaluateAnswer(state.sessionId, answer);
-      dispatch({ type: 'SET_FEEDBACK', payload: feedback });
+      const result = await evaluateAnswer(state.sessionId, answer);
+      const feedbackText = result.is_correct
+        ? `✅ Benar! ${result.feedback}`
+        : `🔄 Coba lagi: ${result.feedback}`;
+      dispatch({ type: 'SET_FEEDBACK', payload: feedbackText });
     } catch (err: any) {
       dispatch({ type: 'SET_FEEDBACK', payload: `⚠️ 评估失败：${err.message}` });
     }
@@ -41,5 +44,5 @@ export function useLensaApp() {
 
   const ankiUrl = getAnkiDownloadUrl(state.userId);
 
-  return { state, dispatch, handleGenerate, handleSubmitAnswer, ankiUrl };
+  return { state, dispatch, handleGenerate, handleSubmitAnswer, ankiUrl };  // ← 这行是关键
 }
