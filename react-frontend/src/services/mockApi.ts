@@ -27,7 +27,7 @@ class MockApiService {
   async generateAnnotations(
     _file: File,
     _userId: string
-  ): Promise<{ sessionId: string; annotations: Annotation[]; status: string; task: string; caption: string }> {
+  ): Promise<{ sessionId: string; annotations: Annotation[]; status: string; task: string }> {
     await randomDelay(MOCK_DELAY_MIN, MOCK_DELAY_MAX);
     
     this.currentScenario = getRandomScenario();
@@ -38,7 +38,6 @@ class MockApiService {
       annotations: response.annotations,
       status: '✨ 标注完成，正在生成学习卡片...',
       task: response.output_task,
-      caption: this.currentScenario.caption,
     };
   }
 

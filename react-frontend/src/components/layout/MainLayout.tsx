@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { useResponsive } from '../../hooks/useResponsive';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 import MobileDrawer from './MobileDrawer';
 import StatsPanel from '../dashboard/StatsPanel';
@@ -11,18 +10,16 @@ import '../../styles/layout.css';
 
 interface MainLayoutProps {
   children: ReactNode;
-  activeNav?: string;
-  onNavigate?: (item: string) => void;
 }
 
-export default function MainLayout({ children, activeNav = 'home', onNavigate }: MainLayoutProps) {
+export default function MainLayout({ children }: MainLayoutProps) {
   const { isMobile, isDesktop } = useResponsive();
-  const handleNavigate = onNavigate ?? (() => {});
+  const [activeNav, setActiveNav] = useState('home');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <div className="app-layout">
-      {isDesktop && <Sidebar activeItem={activeNav} onNavigate={handleNavigate} />}
+      {isDesktop && <Sidebar activeItem={activeNav} onNavigate={setActiveNav} />}
       {isMobile && (
         <>
           <Header onMenuClick={() => setIsDrawerOpen(true)} />
@@ -30,19 +27,17 @@ export default function MainLayout({ children, activeNav = 'home', onNavigate }:
             isOpen={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
             activeItem={activeNav}
-            onNavigate={handleNavigate}
+            onNavigate={setActiveNav}
           />
         </>
       )}
-
-      {!isMobile && <TopBar />}
 
       <main className={`main-content ${isDesktop ? 'with-sidebar' : ''} ${isMobile ? 'with-header' : ''}`}>
         {children}
       </main>
 
       {isDesktop && <StatsPanel />}
-      {isMobile && <BottomNav activeTab={activeNav} onTabChange={handleNavigate} />}
+      {isMobile && <BottomNav activeTab={activeNav} onTabChange={setActiveNav} />}
     </div>
   );
 }

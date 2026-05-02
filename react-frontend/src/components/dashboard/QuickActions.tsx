@@ -3,9 +3,9 @@ import { useSettings } from '../../contexts/SettingsContext';
 interface ActionCard {
   id: string;
   icon: string;
-  titleKey: 'practiceTitle' | 'ankiTitle' | 'reportTitle' | 'galleryTitle';
-  descriptionKey: 'practiceDesc' | 'ankiDesc' | 'reportDesc' | 'galleryDesc';
-  buttonKey: 'practiceButton' | 'ankiButton' | 'reportButton' | 'galleryButton';
+  titleKey: 'practiceTitle' | 'ankiTitle' | 'reportTitle';
+  descriptionKey: 'practiceDesc' | 'ankiDesc' | 'reportDesc';
+  buttonKey: 'practiceButton' | 'ankiButton' | 'reportButton';
   gradient: string;
   iconBg: string;
 }
@@ -19,15 +19,6 @@ const actions: ActionCard[] = [
     buttonKey: 'practiceButton',
     gradient: 'linear-gradient(135deg, #f2f8ec, #fff7dc)',
     iconBg: 'linear-gradient(135deg, #2d5016, #78a548)',
-  },
-  {
-    id: 'gallery',
-    icon: 'Gallery',
-    titleKey: 'galleryTitle',
-    descriptionKey: 'galleryDesc',
-    buttonKey: 'galleryButton',
-    gradient: 'linear-gradient(135deg, #f0f4ff, #e8eeff)',
-    iconBg: 'linear-gradient(135deg, #4338ca, #818cf8)',
   },
   {
     id: 'anki',
