@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from config import BASE_URL
 from models.schemas import (
     SessionListItem,
     SessionListResponse,
@@ -23,12 +24,9 @@ from services.image_utils import get_or_create_thumbnail
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-IMAGE_DIR = os.getenv("IMAGE_DIR", "images")
-BASE_URL = os.getenv("BASE_URL", "http://localhost:7860")
-
 
 def build_image_url(session_id: str) -> str:
-    return f"{BASE_URL}/images/{session_id}_rendered.png"
+    return f"{BASE_URL}/images/{session_id}.png"
 
 
 def build_original_image_url(image_path: str | None) -> str | None:
@@ -63,7 +61,6 @@ async def list_sessions(
         if session.generated_content:
             caption = session.generated_content.get("caption", "")
 
-        # Generate or get thumbnail for the original AI-generated image
         thumbnail_path = None
         if session.image_path:
             thumb_file = get_or_create_thumbnail(session.image_path)

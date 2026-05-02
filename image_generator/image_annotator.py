@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from openai import OpenAI
 import redis
-from config import OPENAI_API_KEY, OPENAI_BASE_URL, VOCAB_PATH, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_VOCAB_KEY, REDIS_VOCAB_HASH_KEY
+from config import OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL_ANNOTATE, VOCAB_PATH, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_VOCAB_KEY, REDIS_VOCAB_HASH_KEY
 
 SUPPORTED_SIZES = [
     "1024x1024", "1024x1536", "1536x1024",
@@ -146,14 +146,14 @@ def annotate_image(image_path: str, annotations: str, output_path: str = None, a
 
     print(f"Loading image: {image_path}")
     print(f"Annotations: {annotations[:100]}...")
-    print(f"Sending to gpt-image-2 for annotation...")
+    print(f"Sending to {OPENAI_MODEL_ANNOTATE} for annotation...")
 
     client = OpenAI(api_key=key, base_url=url)
 
     try:
         with open(image_path, "rb") as img_file:
             result = client.images.edit(
-                model="gpt-image-2",
+                model=OPENAI_MODEL_ANNOTATE,
                 image=img_file,
                 prompt=full_prompt,
                 size=best_size,

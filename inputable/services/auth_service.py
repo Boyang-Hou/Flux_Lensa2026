@@ -5,12 +5,11 @@ from typing import Any
 
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_HOURS
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24 * 7
+_SECRET_KEY = SECRET_KEY or secrets.token_hex(32)
 
 
 def hash_password(password: str) -> str:
@@ -28,13 +27,13 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
     else:
         expire = datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, _SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def decode_token(token: str) -> dict[str, Any] | None:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, _SECRET_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError:
         return None

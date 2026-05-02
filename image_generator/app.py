@@ -10,12 +10,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from config import HOST, PORT, CORS_ORIGINS
 
 app = FastAPI(title="Lensa - AI Image Annotator")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -155,4 +160,4 @@ async def get_history():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:app", host=HOST, port=PORT, reload=True)

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { GalleryCard as GalleryCardType } from '../../types/gallery';
 import { useSettings } from '../../stores/settingsStore';
 
@@ -26,6 +27,10 @@ export default function GalleryCardItem({ card, onClick, index }: GalleryCardPro
 
   const displayCaption = card.caption || card.annotations[0]?.object || '';
 
+  const hasImageUrl = card.imageUrl && card.imageUrl.trim() !== '';
+  const hasOriginalUrl = card.originalImageUrl && card.originalImageUrl.trim() !== '';
+  const [imageError, setImageError] = useState(false);
+
   return (
     <article
       className="gallery-card"
@@ -33,7 +38,30 @@ export default function GalleryCardItem({ card, onClick, index }: GalleryCardPro
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       <div className="gallery-card-image">
-        <img src={card.imageUrl} alt={card.caption || '学习卡片'} loading="lazy" />
+        {hasImageUrl && !imageError ? (
+          <img
+            src={card.imageUrl}
+            alt={card.caption || '学习卡片'}
+            loading="lazy"
+            onError={() => setImageError(true)}
+          />
+        ) : hasOriginalUrl ? (
+          <div className="gallery-card-fallback">
+            <img
+              src={card.originalImageUrl}
+              alt={card.caption || '原始图片'}
+              loading="lazy"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <span className="gallery-card-fallback-badge">原图</span>
+          </div>
+        ) : (
+          <div className="gallery-card-no-image">
+            <span>🎴</span>
+          </div>
+        )}
         {card.isCompleted && (
           <div className="gallery-card-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">

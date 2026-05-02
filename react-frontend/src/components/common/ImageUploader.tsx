@@ -11,6 +11,7 @@ interface ImageUploaderProps {
   showGenerateButton?: boolean;
   showEyebrow?: boolean;
   variant?: 'default' | 'compact';
+  phase?: 'upload' | 'practice' | 'completed';
 }
 
 export default function ImageUploader({
@@ -20,6 +21,7 @@ export default function ImageUploader({
   showGenerateButton = false,
   showEyebrow = false,
   variant = 'default',
+  phase = 'upload',
 }: ImageUploaderProps) {
   const { t } = useSettings();
   const { imagePreview: persistedPreview, setImagePreview, clearImagePreview } = useUI();
@@ -117,6 +119,12 @@ export default function ImageUploader({
     clearImagePreview();
     if (fileRef.current) fileRef.current.value = '';
   };
+
+  useEffect(() => {
+    if (phase === 'completed') {
+      handleClear();
+    }
+  }, [phase]);
 
   const openCamera = useCallback(async () => {
     setCameraError(null);

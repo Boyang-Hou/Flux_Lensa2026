@@ -4,7 +4,7 @@ import io
 from pathlib import Path
 from PIL import Image
 from openai import OpenAI
-from config import OPENAI_API_KEY, OPENAI_BASE_URL
+from config import OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL_RECOGNIZE
 
 if sys.stdout.encoding != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -62,10 +62,10 @@ def recognize_image(image_path: str, prompt: str = None, api_key: str = None, ba
         "Be specific and thorough."
     )
 
-    print("Sending to GPT-4o for recognition...")
+    print(f"Sending to {OPENAI_MODEL_RECOGNIZE} for recognition...")
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model=OPENAI_MODEL_RECOGNIZE,
             messages=[
                 {
                     "role": "user",

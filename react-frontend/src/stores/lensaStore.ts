@@ -71,7 +71,8 @@ export const initialLensaState: LensaState = {
 function sessionToGalleryCard(session: SessionListItem): GalleryCard {
   return {
     id: session.session_id,
-    imageUrl: session.rendered_image_path || session.image_path || '',
+    imageUrl: session.rendered_image_path?.trim() || '',
+    originalImageUrl: session.image_path?.trim() || undefined,
     annotations: [],
     caption: session.caption || '',
     task: session.output_task || null,

@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from config import IMAGE_DIR, ANKI_DIR, HOST, PORT, CORS_ORIGINS, DEMO_USER_EMAIL, DEMO_USER_PASSWORD
 from models.db_models import Base, User
 from services.vocab_cache import load_vocab_cache
 from services.llm_factory import LLMFactory
@@ -20,10 +21,6 @@ from database import engine, AsyncSessionLocal, get_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-IMAGE_DIR = os.getenv("IMAGE_DIR", "images")
-ANKI_DIR = os.getenv("ANKI_DIR", "anki")
-BASE_URL = os.getenv("BASE_URL", "http://localhost:7860")
 
 
 @asynccontextmanager
@@ -47,19 +44,19 @@ async def lifespan(app: FastAPI):
 
     async with AsyncSessionLocal() as session:
         result = await session.execute(
-            select(User).where(User.email == "demo@lensa.example.com")
+            select(User).where(User.email == DEMO_USER_EMAIL)
         )
         if not result.scalar_one_or_none():
             demo_user = User(
-                email="demo@lensa.example.com",
+                email=DEMO_USER_EMAIL,
                 name="Demo User",
-                password_hash=hash_password("123456"),
+                password_hash=hash_password(DEMO_USER_PASSWORD),
                 estimated_cefr="A1",
                 has_completed_test=False,
             )
             session.add(demo_user)
             await session.commit()
-            logger.info("Default demo account created: demo@lensa.example.com / 123456")
+            logger.info(f"Default demo account created: {DEMO_USER_EMAIL}")
 
     load_vocab_cache()
 
@@ -73,17 +70,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Lensa Backend", version="1.0.0", lifespan=lifespan)
 
-cors_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173",
-    ).split(",")
-    if origin.strip()
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -123,8 +112,8 @@ if __name__ == "__main__":
     
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
-        port=7860,
+        host=HOST,
+        port=PORT,
         reload=True,
         log_level="info"
     )

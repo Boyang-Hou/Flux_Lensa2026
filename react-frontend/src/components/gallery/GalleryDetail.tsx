@@ -17,6 +17,7 @@ export default function GalleryDetail({ card, onClose, onDelete, onToggleComplet
   const [isEditingCaption, setIsEditingCaption] = useState(false);
   const [editedCaption, setEditedCaption] = useState(card.caption || '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -62,7 +63,29 @@ export default function GalleryDetail({ card, onClose, onDelete, onToggleComplet
 
         <div className="gallery-detail-content">
           <div className="gallery-detail-image">
-            <img src={card.imageUrl} alt={card.caption || '学习卡片'} />
+            {(card.imageUrl && card.imageUrl.trim() !== '') && !imageError ? (
+              <img
+                src={card.imageUrl}
+                alt={card.caption || '学习卡片'}
+                onError={() => setImageError(true)}
+              />
+            ) : (card.originalImageUrl && card.originalImageUrl.trim() !== '') ? (
+              <div className="gallery-detail-fallback">
+                <img
+                  src={card.originalImageUrl}
+                  alt={card.caption || '原始图片'}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <span className="gallery-detail-fallback-badge">原始上传图片（AI卡片未生成）</span>
+              </div>
+            ) : (
+              <div className="gallery-detail-no-image">
+                <span>🎴</span>
+                <p>AI 学习卡片未生成</p>
+              </div>
+            )}
           </div>
 
           <div className="gallery-detail-info">
@@ -125,15 +148,17 @@ export default function GalleryDetail({ card, onClose, onDelete, onToggleComplet
             )}
 
             <div className="gallery-detail-actions">
-              <a
-                href={card.imageUrl}
-                download={`lensa_${card.annotations[0]?.object || 'card'}.png`}
-                className="gallery-detail-btn primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                💾 {t.gallery.saveImage}
-              </a>
+              {card.imageUrl && (
+                <a
+                  href={card.imageUrl}
+                  download={`lensa_${card.annotations[0]?.object || 'card'}.png`}
+                  className="gallery-detail-btn primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  💾 {t.gallery.saveImage}
+                </a>
+              )}
               {card.task && (
                 <button
                   className="gallery-detail-btn secondary"

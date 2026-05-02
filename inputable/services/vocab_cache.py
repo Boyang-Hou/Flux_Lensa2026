@@ -4,6 +4,7 @@ import json
 import logging
 import os
 from models.schemas import VocabularyEntry
+from config import VOCAB_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -14,19 +15,14 @@ FALLBACK_VOCABULARY = [
     "besar", "kecil", "bagus", "baru", "lama",
 ]
 
-# Global in-memory vocabulary cache: word -> VocabularyEntry
 vocab_cache: dict[str, VocabularyEntry] = {}
 
 
 def load_vocab_cache() -> None:
-    """Load vocabulary from data/id_vocabulary.json into memory.
-    Falls back to FALLBACK_VOCABULARY if file is missing or malformed.
-    """
     global vocab_cache
-    vocab_path = os.path.join("data", "id_vocabulary.json")
 
     try:
-        with open(vocab_path, encoding="utf-8") as f:
+        with open(VOCAB_PATH, encoding="utf-8") as f:
             raw = json.load(f)
 
         loaded = 0
@@ -38,11 +34,11 @@ def load_vocab_cache() -> None:
             except Exception as e:
                 logger.warning(f"Skipping malformed vocab entry {entry}: {e}")
 
-        logger.info(f"Vocabulary cache loaded: {loaded} words from {vocab_path}")
+        logger.info(f"Vocabulary cache loaded: {loaded} words from {VOCAB_PATH}")
 
     except FileNotFoundError:
         logger.warning(
-            f"Vocabulary file not found at {vocab_path} — using fallback vocabulary"
+            f"Vocabulary file not found at {VOCAB_PATH} — using fallback vocabulary"
         )
         _load_fallback()
     except json.JSONDecodeError as e:
@@ -50,8 +46,6 @@ def load_vocab_cache() -> None:
         _load_fallback()
 
 
-# ── Fallback vocabulary with proper translations ──────────────────────────
-# Only used when data/id_vocabulary.json is missing or malformed.
 _FALLBACK_DETAILS: dict[str, dict[str, str]] = {
     "ini":       {"pos": "pronoun", "translation_zh": "这",    "translation_en": "this",        "example": "Ini buku saya."},
     "itu":       {"pos": "pronoun", "translation_zh": "那",    "translation_en": "that",        "example": "Itu rumah dia."},
@@ -87,7 +81,6 @@ _FALLBACK_DETAILS: dict[str, dict[str, str]] = {
 
 
 def _load_fallback() -> None:
-    """Populate vocab_cache with hardcoded fallback words with proper translations."""
     global vocab_cache
     for word in FALLBACK_VOCABULARY:
         detail = _FALLBACK_DETAILS.get(word, {})
@@ -103,10 +96,8 @@ def _load_fallback() -> None:
 
 
 def get_vocab_entry(word: str) -> VocabularyEntry | None:
-    """Look up a word in the cache. Returns None if not found."""
     return vocab_cache.get(word)
 
 
 def is_known_word(word: str) -> bool:
-    """Check if a word exists in the vocabulary cache."""
     return word in vocab_cache

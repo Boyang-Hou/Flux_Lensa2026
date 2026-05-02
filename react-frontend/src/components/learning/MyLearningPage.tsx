@@ -45,6 +45,7 @@ const MyLearningPage = forwardRef<HTMLDivElement, MyLearningPageProps>(({
           showGenerateButton={true}
           disabled={disabled}
           variant="default"
+          phase={phase}
         />
       </div>
 
