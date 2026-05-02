@@ -8,12 +8,13 @@ export interface LensaState {
   annotations: Annotation[];
   task: OutputTask | null;
   resultImageUrl: string | null;
+  caption: string;
   status: string;
   feedback: string;
   isGenerating: boolean;
   isRendering: boolean;
-  caption: string;
   galleryCards: GalleryCard[];
+  phase: 'upload' | 'practice';
 }
 
 export type LensaAction =
@@ -38,12 +39,13 @@ export const initialState: LensaState = {
   annotations: [],
   task: null,
   resultImageUrl: null,
+  caption: '',
   status: '📷 拍照或上传图片，开始学习印尼语',
   feedback: '',
   isGenerating: false,
   isRendering: false,
-  caption: '',
   galleryCards: [],
+  phase: 'upload',
 };
 
 export function lensaReducer(state: LensaState, action: LensaAction): LensaState {
@@ -55,15 +57,24 @@ export function lensaReducer(state: LensaState, action: LensaAction): LensaState
     case 'GENERATE_START':
       return { ...state, isGenerating: true, isRendering: false, status: '🔍 识别中，请稍候...', feedback: '', resultImageUrl: null };
     case 'GENERATE_SUCCESS':
-      return { ...state, isGenerating: false, sessionId: action.payload.sessionId, annotations: action.payload.annotations, task: action.payload.task, caption: action.payload.caption, status: '✨ 标注完成，正在生成学习卡片...' };
+      return {
+        ...state,
+        isGenerating: false,
+        sessionId: action.payload.sessionId,
+        annotations: action.payload.annotations,
+        task: action.payload.task,
+        caption: action.payload.caption,
+        status: '✨ 标注完成，正在生成学习卡片...',
+        phase: 'practice',
+      };
     case 'GENERATE_ERROR':
-      return { ...state, isGenerating: false, status: `⚠️ ${action.payload}` };
+      return { ...state, isGenerating: false, status: `${action.payload}` };
     case 'RENDER_START':
-      return { ...state, isRendering: true, status: '🎨 正在生成学习卡片...' };
+      return { ...state, isRendering: true };
     case 'RENDER_SUCCESS':
-      return { ...state, isRendering: false, resultImageUrl: action.payload, status: '🎉 学习卡片生成完成！' };
+      return { ...state, isRendering: false, resultImageUrl: action.payload ?? '', status: '学习卡片生成完成！' };
     case 'RENDER_ERROR':
-      return { ...state, isRendering: false, status: `⚠️ ${action.payload}` };
+      return { ...state, isRendering: false, status: `${action.payload}` };
     case 'SET_FEEDBACK':
       return { ...state, feedback: action.payload };
     case 'ADD_GALLERY_CARD':
