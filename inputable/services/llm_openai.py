@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from openai import OpenAI, APIError, APITimeoutError, RateLimitError, AuthenticationError
+from openai import AsyncOpenAI, APIError, APITimeoutError, RateLimitError, AuthenticationError
 
 from services.llm_base import BaseLLMClient, LLMError, LLMTimeoutError
 from services.llm_config import OpenAIConfig, LLMGeneralConfig
@@ -18,10 +18,17 @@ class OpenAIClient(BaseLLMClient):
         super().__init__(general_config)
         self.config = config
         self.general_config = general_config
-        self.client = OpenAI(
+        
+        http_client = httpx.AsyncClient(
+            timeout=general_config.timeout,
+            verify=general_config.verify_ssl
+        )
+        
+        self.client = AsyncOpenAI(
             api_key=config.api_key,
             base_url=config.base_url,
-            timeout=general_config.timeout
+            timeout=general_config.timeout,
+            http_client=http_client
         )
     
     async def chat_completion(
@@ -34,7 +41,7 @@ class OpenAIClient(BaseLLMClient):
             try:
                 model = kwargs.pop("model", self.config.model_text)
                 
-                response = self.client.chat.completions.create(
+                response = await self.client.chat.completions.create(
                     model=model,
                     messages=messages,
                     **kwargs
@@ -75,7 +82,7 @@ class OpenAIClient(BaseLLMClient):
                 size = kwargs.pop("size", "1024x1024")
                 n = kwargs.pop("n", 1)
                 
-                response = self.client.images.generate(
+                response = await self.client.images.generate(
                     model=model,
                     prompt=prompt,
                     size=size,
@@ -113,7 +120,7 @@ class OpenAIClient(BaseLLMClient):
                 if isinstance(image, Path):
                     with open(image, "rb") as img_file:
                         image_data = img_file
-                        response = self.client.images.edit(
+                        response = await self.client.images.edit(
                             model=model,
                             image=image_data,
                             prompt=prompt,
@@ -124,7 +131,7 @@ class OpenAIClient(BaseLLMClient):
                 else:
                     import io
                     image_data = io.BytesIO(image)
-                    response = self.client.images.edit(
+                    response = await self.client.images.edit(
                         model=model,
                         image=image_data,
                         prompt=prompt,
@@ -223,13 +230,10 @@ class OpenAIClient(BaseLLMClient):
         
         for attempt in range(max_retries + 1):
             try:
-                import ssl
-                ssl_ctx = ssl.create_default_context()
-                ssl_ctx.check_hostname = True
-                ssl_ctx.verify_mode = ssl.CERT_REQUIRED
-                ssl_ctx.options |= 0x4
-
-                async with httpx.AsyncClient(timeout=self.general_config.timeout, verify=ssl_ctx) as client:
+                async with httpx.AsyncClient(
+                    timeout=self.general_config.timeout,
+                    verify=self.general_config.verify_ssl
+                ) as client:
                     response = await client.get(url)
                     response.raise_for_status()
                     

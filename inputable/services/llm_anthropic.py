@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from anthropic import Anthropic, APIError, APITimeoutError, RateLimitError, AuthenticationError
+from anthropic import AsyncAnthropic, APIError, APITimeoutError, RateLimitError, AuthenticationError
 
 from services.llm_base import BaseLLMClient, LLMError, LLMTimeoutError
 from services.llm_config import AnthropicConfig, LLMGeneralConfig
@@ -18,7 +18,7 @@ class AnthropicClient(BaseLLMClient):
         super().__init__(general_config)
         self.config = config
         self.general_config = general_config
-        self.client = Anthropic(
+        self.client = AsyncAnthropic(
             api_key=config.api_key,
             base_url=config.base_url,
             timeout=general_config.timeout
@@ -49,7 +49,7 @@ class AnthropicClient(BaseLLMClient):
                 
                 params.update(kwargs)
                 
-                response = self.client.messages.create(**params)
+                response = await self.client.messages.create(**params)
                 
                 return {
                     "content": response.content[0].text,
@@ -111,7 +111,7 @@ class AnthropicClient(BaseLLMClient):
                     image_data = image
                     media_type = "image/jpeg"
                 
-                response = self.client.messages.create(
+                response = await self.client.messages.create(
                     model=model,
                     max_tokens=max_tokens,
                     messages=[
